@@ -335,12 +335,18 @@ public:
     size_t _ddof_values_size = _num_dofs*sizeof(T);
     size_t _ddof_indices_size = _num_boundary_dofs*sizeof(std::int32_t);
     size_t _ddof_markers_size = _num_dofs*sizeof(char);
-    CUDA::safeMemAlloc(&_ddof_values, _ddof_values_size);
-    CUDA::safeMemcpyHtoD(_ddof_values, _dof_values.data(), _ddof_values_size);
-    CUDA::safeMemAlloc(&_ddof_indices, _ddof_indices_size);
-    CUDA::safeMemcpyHtoD(_ddof_indices, dof_indices.data(), _ddof_indices_size);
-    CUDA::safeMemAlloc(&_ddof_markers, _ddof_markers_size);
-    CUDA::safeMemcpyHtoD(_ddof_markers, dof_markers, _ddof_markers_size);
+    if (_ddof_values_size > 0) {
+      CUDA::safeMemAlloc(&_ddof_values, _ddof_values_size);
+      CUDA::safeMemcpyHtoD(_ddof_values, _dof_values.data(), _ddof_values_size);
+    }
+    if (_ddof_indices_size > 0) {
+      CUDA::safeMemAlloc(&_ddof_indices, _ddof_indices_size);
+      CUDA::safeMemcpyHtoD(_ddof_indices, dof_indices.data(), _ddof_indices_size);
+    }
+    if (_ddof_markers_size > 0) {
+      CUDA::safeMemAlloc(&_ddof_markers, _ddof_markers_size);
+      CUDA::safeMemcpyHtoD(_ddof_markers, dof_markers, _ddof_markers_size);
+    }
     if (dof_markers)
       delete[] dof_markers;
   }

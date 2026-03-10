@@ -358,7 +358,7 @@ class CUDAAssembler:
     _x0 = [] if x0 is None else x0._cpp_object
     if type(bcs) is list:
       block_bc = a.make_block_bc(bcs)[0]
-    elif type(bcs) in (_cpp.fem.CUDADirichletBC_float32, _cpp.fem.CUDADirichletBC_float64):
+    elif type(bcs) in (_cucpp.fem.CUDADirichletBC_float32, _cucpp.fem.CUDADirichletBC_float64):
       block_bc = bcs
     else:
       raise TypeError(

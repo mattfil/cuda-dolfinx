@@ -214,11 +214,8 @@ class BlockCUDAForm:
     def make_block_bc(self, bcs):
         """Create blocked CUDADirichletBC objects usable with this form."""
 
-        if not len(bcs):
-            return None
-
         blocked_bcs = []
-        V = bcs[0].function_space 
+        V = self._function_spaces[0][0]
         if type(V) is _cpp.fem.FunctionSpace_float32:
             bc_cls = _cucpp.fem.CUDADirichletBC_float32
         elif type(V) is _cpp.fem.FunctionSpace_float64:
