@@ -187,9 +187,7 @@ CUDA::Module compile_assembly_utils(
   bool verbose)
 {
   // Configure compiler options
-  int num_compile_options;
-  const char** compile_options =
-    CUDA::nvrtc_compiler_options(cuda_context, &num_compile_options, debug);
+  std::vector<std::string> compile_options = CUDA::nvrtc_compiler_options(cuda_context, debug);
 
   // Fetch the CUDA C++ code
   std::string assembly_utils_src =
@@ -202,7 +200,7 @@ CUDA::Module compile_assembly_utils(
   const char* program_include_names[] = {};
   std::string ptx = CUDA::compile_cuda_cpp_to_ptx(
     program_name, num_program_headers, program_headers,
-    program_include_names, num_compile_options, compile_options,
+    program_include_names, compile_options,
     assembly_utils_src.c_str(), cudasrcdir, verbose);
 
   // Load the PTX assembly as a module

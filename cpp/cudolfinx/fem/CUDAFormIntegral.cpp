@@ -2453,16 +2453,15 @@ CUDA::Module dolfinx::fem::compile_form_integral_kernel(
     const char** program_include_names = NULL;
 
     // Configure compiler options
-    int num_compile_options;
-    const char** compile_options =
-      CUDA::nvrtc_compiler_options(cuda_context, &num_compile_options, debug);
+    std::vector<std::string> compile_options =
+      CUDA::nvrtc_compiler_options(cuda_context, debug);
 
     // Compile CUDA C++ code to PTX assembly
     const char* program_name = factory_name.c_str();
     const char* cudasrcdir = cachedir.c_str();
     ptx = CUDA::compile_cuda_cpp_to_ptx(
       program_name, num_program_headers, program_headers,
-      program_include_names, num_compile_options, compile_options,
+      program_include_names, compile_options,
       assembly_kernel_src.c_str(), cudasrcdir, verbose);
 
     std::ofstream file(ptxfile);

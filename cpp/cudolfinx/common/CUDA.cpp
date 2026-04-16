@@ -16,6 +16,7 @@
 #include <cstring>
 #include <iostream>
 #include <map>
+#include <vector>
 #include <iomanip>
 #include <iterator>
 #include <memory>
@@ -302,8 +303,7 @@ std::string CUDA::compile_cuda_cpp_to_ptx(
   int num_program_headers,
   const char** program_headers,
   const char** program_include_names,
-  int num_compile_options,
-  const char** compile_options,
+  std::vector<std::string>& compile_options,
   const char* program_src,
   const char* cudasrcdir,
   bool verbose)
@@ -335,6 +335,11 @@ std::string CUDA::compile_cuda_cpp_to_ptx(
     }
   }
 
+  std::vector<const char *> c_str_compile_options;
+  for (const auto& s : compile_options) {
+    c_str_compile_options.push_back(s.c_str());
+  }
+
   // Create a CUDA C++ program based on the given source
   nvrtcResult nvrtc_err;
   nvrtcProgram program;
@@ -351,7 +356,7 @@ std::string CUDA::compile_cuda_cpp_to_ptx(
 
   // Compile the CUDA C++ program
   nvrtcResult nvrtc_compile_err = nvrtcCompileProgram(
-    program, num_compile_options, compile_options);
+    program, c_str_compile_options.size(), c_str_compile_options.data());
   if (nvrtc_compile_err != NVRTC_SUCCESS) {
     // If the compiler failed, obtain the compiler log
     std::string program_log;
@@ -523,37 +528,22 @@ std::string CUDA::get_compute_capability_string(const CUDA::Context& cuda_contex
 }
 
 /// Configure compiler options for CUDA C++ code
-static const char** CUDA::nvrtc_compiler_options(
-  const CUDA::Context& cuda_context;
-  int* out_num_compile_options,
+std::vector<std::string> CUDA::nvrtc_compiler_options(
+  const CUDA::Context& cuda_context,
   bool debug)
 {
-  int num_compile_options;
   std::string gpuarch_option = "--gpu-architecture=compute_" + 
     CUDA::get_compute_capability_string(cuda_context);
-  static const char* default_compile_options[] = {
+  std::vector<std::string> compile_options = {
     "--device-as-default-execution-space",
-    gpuarch_option.c_str()};
-  static const char* debug_compile_options[] = {
-    "--device-as-default-execution-space",
-    gpuarch_option.c_str(),
-    "--device-debug",
-    "--generate-line-info"};
+    gpuarch_option
+  };
 
-  const char** compile_options;
   if (debug) {
-    compile_options = debug_compile_options;
-    num_compile_options =
-      sizeof(debug_compile_options) /
-      sizeof(*debug_compile_options);
-  } else {
-    compile_options = default_compile_options;
-    num_compile_options =
-      sizeof(default_compile_options) /
-      sizeof(*default_compile_options);
+    compile_options.push_back("--device-debug");
+    compile_options.push_back("--generate-line-info");
   }
 
-  *out_num_compile_options = num_compile_options;
   return compile_options;
 }
 

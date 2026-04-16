@@ -129,8 +129,7 @@ std::string compile_cuda_cpp_to_ptx(
   int num_program_headers,
   const char** program_headers,
   const char** program_include_names,
-  int num_compile_options,
-  const char** compile_options,
+  std::vector<std::string>& compile_options,
   const char* program_src,
   const char* cudasrcdir,
   bool verbose);
@@ -149,10 +148,9 @@ template <typename T> void safeVectorCreate(CUdeviceptr* dptr, std::vector<T> ar
 }
 
 std::string get_compute_capability_string(const Context& cuda_context);
-static const char** nvrtc_compiler_options(
-  const Context& cuda_context;
-  int* out_num_compile_options,
-  bool debug)
+std::vector<std::string> nvrtc_compiler_options(
+  const Context& cuda_context,
+  bool debug);
 } // namespace CUDA
 
 
