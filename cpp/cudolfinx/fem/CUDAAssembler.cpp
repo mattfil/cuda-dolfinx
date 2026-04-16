@@ -180,66 +180,8 @@ void CUdeviceptr_free(CUdeviceptr* p)
     cuMemFree(*p);
 }
 
-static const char * nvrtc_options_gpuarch(
-    CUjit_target target)
-{
-    switch (target) {
-    case CU_TARGET_COMPUTE_30: return "--gpu-architecture=compute_30";
-    case CU_TARGET_COMPUTE_32: return "--gpu-architecture=compute_32";
-    case CU_TARGET_COMPUTE_35: return "--gpu-architecture=compute_35";
-    case CU_TARGET_COMPUTE_37: return "--gpu-architecture=compute_37";
-    case CU_TARGET_COMPUTE_50: return "--gpu-architecture=compute_50";
-    case CU_TARGET_COMPUTE_52: return "--gpu-architecture=compute_52";
-    case CU_TARGET_COMPUTE_53: return "--gpu-architecture=compute_53";
-    case CU_TARGET_COMPUTE_60: return "--gpu-architecture=compute_60";
-    case CU_TARGET_COMPUTE_61: return "--gpu-architecture=compute_61";
-    case CU_TARGET_COMPUTE_62: return "--gpu-architecture=compute_62";
-    case CU_TARGET_COMPUTE_70: return "--gpu-architecture=compute_70";
-    case CU_TARGET_COMPUTE_72: return "--gpu-architecture=compute_72";
-    case CU_TARGET_COMPUTE_75: return "--gpu-architecture=compute_75";
-    case CU_TARGET_COMPUTE_80: return "--gpu-architecture=compute_80";
-    case CU_TARGET_COMPUTE_86: return "--gpu-architecture=compute_86";
-    case CU_TARGET_COMPUTE_87: return "--gpu-architecture=compute_87";
-    case CU_TARGET_COMPUTE_89: return "--gpu-architecture=compute_89";
-    case CU_TARGET_COMPUTE_90: return "--gpu-architecture=compute_90";
-    default: return "";
-    }
-}
-
-/// Configure compiler options for CUDA C++ code
-static const char** nvrtc_compiler_options(
-  int* out_num_compile_options,
-  CUjit_target target,
-  bool debug)
-{
-  int num_compile_options;
-  static const char* default_compile_options[] = {
-    nvrtc_options_gpuarch(target)};
-  static const char* debug_compile_options[] = {
-    nvrtc_options_gpuarch(target),
-    "--device-debug",
-    "--generate-line-info"};
-
-  const char** compile_options;
-  if (debug) {
-    compile_options = debug_compile_options;
-    num_compile_options =
-      sizeof(debug_compile_options) /
-      sizeof(*debug_compile_options);
-  } else {
-    compile_options = default_compile_options;
-    num_compile_options =
-      sizeof(default_compile_options) /
-      sizeof(*default_compile_options);
-  }
-
-  *out_num_compile_options = num_compile_options;
-  return compile_options;
-}
-
 CUDA::Module compile_assembly_utils(
   const CUDA::Context& cuda_context,
-  CUjit_target target,
   bool debug,
   const char* cudasrcdir,
   bool verbose)
@@ -247,7 +189,7 @@ CUDA::Module compile_assembly_utils(
   // Configure compiler options
   int num_compile_options;
   const char** compile_options =
-    nvrtc_compiler_options(&num_compile_options, target, debug);
+    CUDA::nvrtc_compiler_options(cuda_context, &num_compile_options, debug);
 
   // Fetch the CUDA C++ code
   std::string assembly_utils_src =
@@ -268,7 +210,7 @@ CUDA::Module compile_assembly_utils(
   CUjit_option * module_load_options = NULL;
   void ** module_load_option_values = NULL;
   return CUDA::Module(
-    cuda_context, ptx, target,
+    cuda_context, ptx,
     num_module_load_options,
     module_load_options,
     module_load_option_values,
@@ -281,11 +223,10 @@ CUDA::Module compile_assembly_utils(
 //-----------------------------------------------------------------------------
 CUDAAssembler::CUDAAssembler(
   const CUDA::Context& cuda_context,
-  CUjit_target target,
   bool debug,
   const char* cudasrcdir,
   bool verbose)
-  : _util_module(compile_assembly_utils(cuda_context, target, debug, cudasrcdir, verbose))
+  : _util_module(compile_assembly_utils(cuda_context, debug, cudasrcdir, verbose))
 {
 }
 //-----------------------------------------------------------------------------

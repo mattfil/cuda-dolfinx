@@ -229,8 +229,7 @@ void declare_cuda_objects(nb::module_& m)
           [](dolfinx::fem::CUDAAssembler* assembler, const dolfinx::CUDA::Context& cuda_context,
              const char* cudasrcdir) {
             bool debug = true, verbose = false;
-            CUjit_target target = dolfinx::CUDA::get_cujit_target(cuda_context);
-            new (assembler) dolfinx::fem::CUDAAssembler(cuda_context, target, debug, cudasrcdir, verbose);
+            new (assembler) dolfinx::fem::CUDAAssembler(cuda_context, debug, cudasrcdir, verbose);
           }, nb::arg("context"), nb::arg("cudasrcdir"));
   
 }
