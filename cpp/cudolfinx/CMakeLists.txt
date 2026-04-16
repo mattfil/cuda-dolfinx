@@ -5,7 +5,7 @@ include(GNUInstallDirs)
 # Declare the library (target)
 add_library(cudolfinx)
 
-set_property(TARGET cudolfinx PROPERTY CUDA_ARCHITECTURES 50)
+set_property(TARGET cudolfinx PROPERTY CUDA_ARCHITECTURES all-major)
 
 # ------------------------------------------------------------------------------
 # Add source files to the target
