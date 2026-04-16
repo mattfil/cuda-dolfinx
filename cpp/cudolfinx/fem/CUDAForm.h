@@ -95,8 +95,7 @@ public:
     std::string cachedir,
     enum assembly_kernel_type assembly_kernel_type)
   {
-    auto cujit_target = CUDA::get_cujit_target(cuda_context);
-      // Get the number of vertices and coordinates
+    // Get the number of vertices and coordinates
     const mesh::Mesh<U>& mesh = *_form->mesh();
     std::int32_t num_vertices_per_cell = mesh::num_cell_vertices(mesh.geometry().cmap().cell_shape());
     //std::int32_t num_coordinates_per_vertex = mesh.geometry().dim();
@@ -125,7 +124,6 @@ public:
         auto assembly_module = compile_form_integral_kernel(
             cuda_context,
             cachedir,
-            cujit_target,
             _form->rank(),
             integral_type,
             it->second,

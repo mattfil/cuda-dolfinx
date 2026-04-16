@@ -412,7 +412,6 @@ void lift_bc_facet(
 CUDA::Module compile_form_integral_kernel(
   const CUDA::Context& cuda_context,
   std::string cachedir,
-  CUjit_target target,
   int form_rank,
   IntegralType integral_type,
   std::pair<std::string, std::string> tabulate_tensor_source,
