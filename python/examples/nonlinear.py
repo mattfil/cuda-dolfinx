@@ -7,22 +7,22 @@
 import argparse as ap
 import time
 
-from mpi4py import MPI
 import petsc4py
-
-petsc4py.init(comm=MPI.COMM_WORLD)
+from mpi4py import MPI
 from petsc4py import PETSc
 
 import numpy as np
-import ufl
-from ufl import dx, grad, inner
-
-import dolfinx
-from dolfinx import mesh
-from dolfinx.fem.petsc import NonlinearProblem
 
 import cudolfinx as cufem
+import dolfinx
+import ufl
 from cudolfinx.petsc import NonlinearProblem as cuNonlinearProblem
+from dolfinx import mesh
+from dolfinx.fem.petsc import NonlinearProblem
+from ufl import dx, grad, inner
+
+petsc4py.init(comm=MPI.COMM_WORLD)
+
 
 # petsc logging to see GPU utilization, CpuToGpu and GpuToCpu times, etc.
 opts = PETSc.Options()
@@ -31,6 +31,7 @@ PETSc.Log.begin()
 
 
 def create_mesh(res: int = 10, dim: int = 3):
+    """Create mesh."""
     if dim == 3:
         return mesh.create_box(
             comm=MPI.COMM_WORLD,
@@ -43,8 +44,7 @@ def create_mesh(res: int = 10, dim: int = 3):
 
 
 def main(res: int = 30, degree: int = 1, dim: int = 3, cuda: bool = True):
-    """solve a nonlinear problem on a CPU or GPU"""
-
+    """Solve a nonlinear problem on a CPU or GPU."""
     domain = create_mesh(res, dim=dim)
     comm = domain.comm
 

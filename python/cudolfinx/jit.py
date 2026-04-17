@@ -1,26 +1,26 @@
-# Copyright (C) 2024 Benjamin Pachev
+# Copyright (C) 2026 Benjamin Pachev
 #
 # This file is part of cuDOLFINX
 #
 # SPDX-License-Identifier:    LGPL-3.0-or-later
 
-"""Routines for manipulating generated FFCX code
-"""
+"""Routines for manipulating generated FFCX code."""
 
-from dolfinx import fem, cpp
-import numpy as np
 import pathlib
-from typing import *
+from typing import Any
+
+import numpy as np
+
+from dolfinx import fem
+
 
 def get_tabulate_tensor_sources(form: fem.Form):
-    """Given a compiled fem.Form, extract the C source code of the tabulate tensors
-    """
-
+    """Given a compiled fem.Form, extract the C source code of the tabulate tensors."""
     module_file = pathlib.Path(form.module.__file__)
     source_filename = module_file.name.split(".")[0] + ".c"
     source_file = module_file.parent.joinpath(source_filename)
     if not source_file.is_file():
-        raise IOError("Could not find generated ffcx source file '{source_file}'!")
+        raise OSError("Could not find generated ffcx source file '{source_file}'!")
 
     tabulate_tensors = []
     parsing_tabulate = False
@@ -32,15 +32,17 @@ def get_tabulate_tensor_sources(form: fem.Form):
                 parsing_tabulate = True
                 parsing_header = True
                 func_name = line.strip().split()[1].split("(")[0]
-                tabulate_id = func_name.replace("tabulate_tensor_integral_", "") 
+                tabulate_id = func_name.replace("tabulate_tensor_integral_", "")
                 tabulate_body = []
             elif parsing_header:
                 if line.startswith("{"):
                     parsing_header = False
                     bracket_count += 1
             elif parsing_tabulate:
-                if line.startswith("{"): bracket_count += 1
-                elif line.startswith("}"): bracket_count -= 1
+                if line.startswith("{"):
+                    bracket_count += 1
+                elif line.startswith("}"):
+                    bracket_count -= 1
                 if not bracket_count:
                     tabulate_tensors.append((tabulate_id, "".join(tabulate_body)))
                     parsing_tabulate = False
@@ -61,11 +63,11 @@ def get_tabulate_tensor_sources(form: fem.Form):
 cuda_tabulate_tensor_header = """
     #define alignas(x)
     #define restrict __restrict__
-    
+
     typedef unsigned char uint8_t;
     typedef unsigned int uint32_t;
     typedef double ufc_scalar_t;
-    
+
     extern "C" __global__
     void tabulate_tensor_{factory_name}({scalar_type}* restrict A,
                                         const {scalar_type}* restrict w,
@@ -77,20 +79,16 @@ cuda_tabulate_tensor_header = """
 """
 
 def _convert_dtype_to_str(dtype: Any):
-    """Convert numpy dtype to named C type
-    """
-
+    """Convert numpy dtype to named C type."""
     if dtype == np.float32:
         return "float"
     elif dtype == np.float64:
         return "double"
     else:
-        raise TypeError(f"Unsupported dtype: '{dtype}'")    
+        raise TypeError(f"Unsupported dtype: '{dtype}'")
 
 def get_wrapped_tabulate_tensors(form: fem.Form, backend="cuda"):
-    """Given a fem.Form, wrap the tabulate tensors for use on a GPU
-    """
-
+    """Given a fem.Form, wrap the tabulate tensors for use on a GPU."""
     if backend != "cuda":
         raise NotImplementedError(f"Backend '{backend}' not yet supported.")
 
@@ -112,4 +110,3 @@ def get_wrapped_tabulate_tensors(form: fem.Form, backend="cuda"):
         res.append((name, wrapped_source))
 
     return res, integral_tensor_indices
-
