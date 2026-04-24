@@ -17,7 +17,7 @@ class CudaDolfinx(CMakePackage):
     license("LGPL-3.0-or-later", checked_by="bpachev")
 
     version("main", branch="main")
-    version("0.10.0", tag="v0.10.post1")
+    version("0.10.0", tag="v0.10.0.post2")
     version("0.9.0", tag="v0.9.0")
 
     depends_on("cxx", type="build")
