@@ -19,7 +19,7 @@ Mat dolfinx::la::petsc::create_cuda_matrix(MPI_Comm comm, const dolfinx::la::Spa
   // Get IndexMaps from sparsity patterm, and block size
   std::array maps = {sp.index_map(0), sp.index_map(1)};
   const std::array bs = {sp.block_size(0), sp.block_size(1)};
-  dolfinx::common::IndexMap col_map = sp.index_map(1);
+  dolfinx::common::IndexMap col_map = *sp.index_map(1);
 
   // Get global and local dimensions
   const std::int64_t M = bs[0] * maps[0]->size_global();
