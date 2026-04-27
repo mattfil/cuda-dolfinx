@@ -102,7 +102,7 @@ dolfinx::mesh::Mesh<T> ghost_layer_mesh(dolfinx::mesh::Mesh<T>& mesh,
   auto new_mesh = create_mesh(
       mesh.comm(), mesh.comm(),
       {std::span<const std::int64_t>(input_dofmap_global)}, {coord_element},
-      mesh.comm(), x, xshape, partitioner, std::nullopt);
+      mesh.comm(), x, xshape, partitioner, std::nullopt, nullptr);
   return new_mesh;
 }
 
