@@ -9,9 +9,8 @@ from spack.package import *
 class CudaDolfinx(CMakePackage):
     """CUDA accelerated extension of DOLFINx from the FEniCS project."""
 
-    homepage = "https://github.com/bpachev/cuda-dolfinx"
-    git = "https://github.com/bpachev/cuda-dolfinx.git"
-    url = "https://github.com/bpachev/cuda-dolfinx/archive/refs/tags/v0.9.0.zip"
+    homepage = "https://github.com/mattfil/cuda-dolfinx"
+    git = "https://github.com/mattfil/cuda-dolfinx.git"
 
     maintainers("bpachev")
     license("LGPL-3.0-or-later", checked_by="bpachev")

@@ -9,9 +9,8 @@ from spack.package import *
 class PyCudaDolfinx(PythonPackage):
     """Python interface for CUDA acceleration of DOLFINx in the FEniCS project."""
 
-    homepage = "https://github.com/bpachev/cuda-dolfinx"
-    url = "https://github.com/bpachev/cuda-dolfinx/archive/refs/tags/v0.9.0.zip"
-    git = "https://github.com/bpachev/cuda-dolfinx.git"
+    homepage = "https://github.com/mattfil/cuda-dolfinx"
+    git = "https://github.com/mattfil/cuda-dolfinx.git"
 
     maintainers("bpachev")
 
@@ -30,4 +29,3 @@ class PyCudaDolfinx(PythonPackage):
     depends_on("py-scikit-build-core+pyproject@0.5:", when="@0.9:", type="build")
 
     build_directory = "python"
-
