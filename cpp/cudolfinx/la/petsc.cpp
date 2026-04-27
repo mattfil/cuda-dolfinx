@@ -19,7 +19,7 @@ Mat dolfinx::la::petsc::create_cuda_matrix(MPI_Comm comm, const dolfinx::la::Spa
   // Get IndexMaps from sparsity patterm, and block size
   std::array maps = {sp.index_map(0), sp.index_map(1)};
   const std::array bs = {sp.block_size(0), sp.block_size(1)};
-  dolfinx::common::IndexMap col_map = *sp.index_map(1);
+  auto col_map = sp.index_map(1);
 
   // Get global and local dimensions
   const std::int64_t M = bs[0] * maps[0]->size_global();
@@ -67,9 +67,9 @@ Mat dolfinx::la::petsc::create_cuda_matrix(MPI_Comm comm, const dolfinx::la::Spa
 
   // convert local column indices to global ones (unrolling blocked indices)
   std::vector<PetscInt> global_column_indices(_column_indices.size());
-  auto col_local_size = bs[1]*col_map.size_local();
-  auto col_ghosts = col_map.ghosts();
-  auto col_local_range = bs[1]*col_map.local_range()[0];
+  auto col_local_size = bs[1] * col_map->size_local();
+  auto col_ghosts = col_map->ghosts();
+  auto col_local_range = bs[1] * col_map->local_range()[0];
   for (std::size_t i = 0; i < _column_indices.size(); i++) {
     
     if (_column_indices[i] < col_local_size)
